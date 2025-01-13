@@ -1,0 +1,25 @@
+{
+  "name": "swr-models",
+  "version": "1.0.0",
+  "description": "SWR toolkit for abstracting API data models as React state objects.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BlueManCZ/swr-models.git"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "swr": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.6",
+    "@biomejs/biome": "^1.9.4",
+    "react": "^19.0.0",
+    "swr": "^2.3.0",
+    "typescript": "^5.7.3"
+  }
+}
