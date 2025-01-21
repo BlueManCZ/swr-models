@@ -3,6 +3,8 @@
 node_modules/
 src/
 .gitignore
+babel.config.json
 biome.json
+jest.config.ts
 package-lock.json
 tsconfig.json
