@@ -36,3 +36,7 @@ export const jsonFetcherFactory =
         }
         return response.json();
     };
+
+/** Helper function converting object values to strings. */
+export const convertObjectValuesToString = (obj?: Record<string, unknown>) =>
+    Object.fromEntries(Object.entries(obj ?? {}).map(([key, value]) => [key, String(value)]));

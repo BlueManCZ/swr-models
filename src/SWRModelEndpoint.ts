@@ -3,7 +3,7 @@ import type { MutatorOptions } from "swr/_internal";
 
 import { customMutate, customSWR } from "./SWRUtils";
 import type { SWRModel, SWRModelEndpointConfig, SWRModelEndpointConfigOverride } from "./types";
-import { jsonFetcher } from "./utils";
+import { convertObjectValuesToString, jsonFetcher } from "./utils";
 
 export class SWRModelEndpoint {
     private readonly config: SWRModelEndpointConfig;
@@ -24,7 +24,8 @@ export class SWRModelEndpoint {
             throw new Error("id can be array only in ssr fallback.");
         }
         const c = this._configMerge(config);
-        return `${c.key}${c.id ? `/${c.id}` : ""}${c.params ? `?${new URLSearchParams(c.params).toString()}` : ""}`;
+        const p = new URLSearchParams(convertObjectValuesToString(c.params)).toString();
+        return `${c.key}${c.id ? `/${c.id}` : ""}${p ? `?${p}` : ""}`;
     }
 
     public fetch<T>(config?: SWRModelEndpointConfigOverride) {
