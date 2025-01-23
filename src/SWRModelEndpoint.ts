@@ -25,7 +25,8 @@ export class SWRModelEndpoint {
         }
         const c = this._configMerge(config);
         const p = new URLSearchParams(convertObjectValuesToString(c.params)).toString();
-        return `${c.key}${c.id ? `/${c.id}` : ""}${p ? `?${p}` : ""}`;
+        const r = `${c.key}${c.id ? `${c.key.endsWith("/") ? "" : "/"}${c.id}` : ""}`;
+        return c?.trailingSlash && !r.endsWith("/") ? `${r}/${p ? `?${p}` : ""}` : `${r}${p ? `?${p}` : ""}`;
     }
 
     public fetch<T>(config?: SWRModelEndpointConfigOverride) {
