@@ -37,9 +37,10 @@ export class SWRModelEndpoint {
     }
 
     public async fetchFallback<T>(config?: SWRModelEndpointConfigOverride) {
+        const c = this._configMerge(config);
         const fallbackPairs: Record<string, T> = {};
-        for (const id of Array.isArray(config?.id) ? config.id : [config?.id]) {
-            fallbackPairs[this.endpoint({ ...config, id })] = await this.fetch<T>({ ...config, id });
+        for (const id of Array.isArray(c?.id) ? c.id : [c?.id]) {
+            fallbackPairs[this.endpoint({ ...c, id })] = await this.fetch<T>({ ...c, id });
         }
         return fallbackPairs;
     }
@@ -57,14 +58,15 @@ export class SWRModelEndpoint {
         onSuccess?: (response: Response) => void,
         config?: SWRModelEndpointConfigOverride,
     ) {
-        return this.mutate(config, data, {
+        const c = this._configMerge(config);
+        return this.mutate(c, data, {
             optimisticData: data instanceof Function ? undefined : data,
             revalidate: false,
             populateCache: true,
             rollbackOnError: false,
         }).then(() =>
-            jsonFetcher(this.endpoint(config), "PUT", data).then((r) => {
-                this.mutate(config, data).then(() => {
+            jsonFetcher(this.endpoint(c), "PUT", data).then((r) => {
+                this.mutate(c, data).then(() => {
                     onSuccess?.(r);
                 });
             }),
@@ -72,6 +74,6 @@ export class SWRModelEndpoint {
     }
 
     public use<T>(config?: SWRModelEndpointConfigOverride) {
-        return customSWR<T>(this.endpoint(config));
+        return customSWR<T>(this.endpoint(config), this._configMerge(config).swrConfig);
     }
 }
