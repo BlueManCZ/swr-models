@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import useSWR, { mutate, SWRConfig } from "swr";
+import useSWR, { mutate, SWRConfig, type SWRConfiguration } from "swr";
 
 import type { SWRModelEndpoint } from "./SWRModelEndpoint";
 import type { SWRModel, SWRModelEndpointConfigOverride } from "./types";
 import { getJson } from "./utils";
 
-export function customSWR<T>(endpoint: string) {
+export function customSWR<T>(endpoint: string, config?: SWRConfiguration) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useSWR<T>(endpoint, getJson, { revalidateOnFocus: false });
+    return useSWR<T>(endpoint, getJson, config);
 }
 
 export const customMutate = mutate;
