@@ -5,7 +5,7 @@ import { customMutate, customSWR } from "./SWRUtils";
 import type { SWRModel, SWRModelEndpointConfig, SWRModelEndpointConfigOverride } from "./types";
 import { convertObjectValuesToString, jsonFetcher } from "./utils";
 
-export class SWRModelEndpoint {
+export class SWRModelEndpoint<T> {
     private readonly config: SWRModelEndpointConfig;
 
     constructor(config: SWRModelEndpointConfig) {
@@ -19,12 +19,28 @@ export class SWRModelEndpoint {
         };
     }
 
-    public endpoint(config?: SWRModelEndpointConfigOverride): string {
+    public endpoint(config?: SWRModelEndpointConfigOverride): string | null {
         if (Array.isArray(config?.id)) {
             throw new Error("id can be array only in ssr fallback.");
         }
         const c = this._configMerge(config);
+
+        if (c.nonNullId) {
+            // Check if id is not null
+            if (c.id === null) {
+                return null;
+            }
+        }
+
+        if (c.params && c.nonNullParams) {
+            // Check if all params are not null or undefined
+            if (Object.values(c.params).some((value) => value === null || value === undefined)) {
+                return null;
+            }
+        }
+
         const p = new URLSearchParams(convertObjectValuesToString(c.params)).toString();
+
         const r = `${c.key}${c.id ? `${c.key.endsWith("/") ? "" : "/"}${c.id}` : ""}`;
         return c?.trailingSlash && !r.endsWith("/") ? `${r}/${p ? `?${p}` : ""}` : `${r}${p ? `?${p}` : ""}`;
     }
@@ -40,7 +56,13 @@ export class SWRModelEndpoint {
         const c = this._configMerge(config);
         const fallbackPairs: Record<string, T> = {};
         for (const id of Array.isArray(c?.id) ? c.id : [c?.id]) {
-            fallbackPairs[this.endpoint({ ...c, id })] = await this.fetch<T>({ ...c, id });
+            const key = this.endpoint({ ...c, id });
+            if (key !== null) {
+                const value = await this.fetch<T>({ ...c, id });
+                if (value !== null) {
+                    fallbackPairs[key] = value;
+                }
+            }
         }
         return fallbackPairs;
     }
@@ -64,16 +86,20 @@ export class SWRModelEndpoint {
             revalidate: false,
             populateCache: true,
             rollbackOnError: false,
-        }).then(() =>
-            jsonFetcher(this.endpoint(c), "PUT", data).then((r) => {
+        }).then(() => {
+            const key = this.endpoint(c);
+            if (key === null) {
+                return null;
+            }
+            jsonFetcher(key, "PUT", data).then((r) => {
                 this.mutate(c, data).then(() => {
                     onSuccess?.(r);
                 });
-            }),
-        );
+            });
+        });
     }
 
-    public use<T>(config?: SWRModelEndpointConfigOverride) {
-        return customSWR<T>(this.endpoint(config), this._configMerge(config).swrConfig);
+    public use<R = T>(config?: SWRModelEndpointConfigOverride) {
+        return customSWR<R>(this.endpoint(config), this._configMerge(config).swrConfig);
     }
 }

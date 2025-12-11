@@ -45,4 +45,24 @@ describe("SWRModelEndpoint", () => {
         expect(testEndpoint4.endpoint({ id: "50", params: { a: "b", c: "d" } })).toBe("test/50/?a=b&c=d");
         expect(testEndpoint4.endpoint({ id: "50", params: { a: 1, b: true } })).toBe("test/50/?a=1&b=true");
     });
+
+    it("Non-null params functionality", () => {
+        const testEndpoint = new SWRModelEndpoint({
+            key: "test",
+            nonNullParams: true,
+        });
+        expect(testEndpoint.endpoint()).toBe("test");
+        expect(testEndpoint.endpoint({ id: 50 })).toBe("test/50");
+        expect(testEndpoint.endpoint({ id: 50, params: { a: "b" } })).toBe("test/50?a=b");
+        expect(testEndpoint.endpoint({ id: 50, params: { a: "b", c: null } })).toBeNull();
+    });
+
+    it("Non-null id functionality", () => {
+        const testEndpoint = new SWRModelEndpoint({
+            key: "test",
+            nonNullId: true,
+        });
+        expect(testEndpoint.endpoint({ id: 50 })).toBe("test/50");
+        expect(testEndpoint.endpoint({ id: null })).toBeNull();
+    });
 });

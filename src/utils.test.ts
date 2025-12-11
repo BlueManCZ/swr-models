@@ -7,11 +7,15 @@ describe("utils", () => {
                 a: "a",
                 b: 2,
                 c: true,
+                d: false,
+                e: null,
+                f: undefined,
             }),
         ).toStrictEqual({
             a: "a",
             b: "2",
             c: "true",
+            d: "false",
         });
     });
 });

@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import useSWR, { mutate, SWRConfig, type SWRConfiguration } from "swr";
+import useSWR, { type Key, mutate, SWRConfig, type SWRConfiguration } from "swr";
 
 import type { SWRModelEndpoint } from "./SWRModelEndpoint";
 import type { SWRModel, SWRModelEndpointConfigOverride } from "./types";
 import { getJson } from "./utils";
 
-export function customSWR<T>(endpoint: string, config?: SWRConfiguration) {
+export function customSWR<T>(endpoint: Key, config?: SWRConfiguration) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useSWR<T>(endpoint, getJson, config);
 }
@@ -16,10 +16,10 @@ export const customMutate = mutate;
 export const CustomSWRConfig = SWRConfig;
 
 export function useModel<T extends SWRModel | SWRModel[]>(
-    modelInstance: SWRModelEndpoint,
+    modelInstance: SWRModelEndpoint<T>,
     config?: SWRModelEndpointConfigOverride,
 ) {
-    const { data: original } = modelInstance.use<T>(config);
+    const { data: original } = modelInstance.use(config);
     const [model, set] = useState<T | undefined>(original);
     const [refreshLock, setRefreshLock] = useState(false);
     const [commitLock, setCommitLock] = useState(true);
