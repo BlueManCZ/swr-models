@@ -20,20 +20,9 @@ npm install swr-models --save-dev
 
 Let's say you have an CRUD API that provides articles, and you have this API accessible from the frontend
 application on `/api/models/articles/<id>` (for example with
-[rewrite](https://nextjs.org/docs/pages/api-reference/config/next-config-js/rewrites)). You can define a model
-endpoint as follows:
+[rewrite](https://nextjs.org/docs/pages/api-reference/config/next-config-js/rewrites)).
 
-```typescript
-// endpoints/Articles.ts
-
-import { SWRModelEndpoint } from "swr-models";
-
-export const Articles = new SWRModelEndpoint({
-    key: "/api/models/articles",
-});
-```
-
-Create a typings file to define the shape of the article object returned by the API:
+Create a typing file to define the shape of the article object returned by the API:
 
 ```typescript
 // types/Article.d.ts
@@ -43,7 +32,19 @@ export interface ArticleModel {
     title: string;
     content: string;
 }
+```
 
+Now you can define a model endpoint as follows:
+
+```typescript
+// endpoints/Articles.ts
+
+import { SWRModelEndpoint } from "swr-models";
+import { ArticleModel } from "../types/Article";
+
+export const Articles = new SWRModelEndpoint<ArticleModel[]>({
+    key: "/api/models/articles",
+});
 ```
 
 Now, you can use the `Articles` object to interact with the API from the React components:
@@ -61,8 +62,10 @@ type ArticleProps = {
     id: number;
 };
 
-export const Article: FC<ArticleProps> = ({id}) => {
+export const Article: FC<ArticleProps> = ({ id }) => {
     const { model } = useModel<ArticleModel>(Articles, { id });
+    const { data: oneArticle } = Articles.use<ArticleModel>({ id });
+    const { data: allArticles } = Articles.use();
     //...
 };
 ```
