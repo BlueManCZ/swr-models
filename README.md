@@ -19,7 +19,7 @@ npm install swr-models --save-dev
 ```
 
 Let's say you have an CRUD API that provides articles, and you have this API accessible from the frontend
-application on `/api/models/articles/<id>` (for example with
+application on `/api/models/articles/<id>` (for example, with
 [rewrite](https://nextjs.org/docs/pages/api-reference/config/next-config-js/rewrites)).
 
 Create a typing file to define the shape of the article object returned by the API:
@@ -34,7 +34,7 @@ export interface ArticleModel {
 }
 ```
 
-Now you can define a model endpoint as follows:
+Define a model endpoint as follows:
 
 ```typescript
 // endpoints/Articles.ts
@@ -47,7 +47,7 @@ export const Articles = new SWRModelEndpoint<ArticleModel[]>({
 });
 ```
 
-Now, you can use the `Articles` object to interact with the API from the React components:
+Use the `Articles` object to interact with the API from the React components:
 
 ```typescript
 // components/Article.tsx
@@ -95,7 +95,8 @@ const {
 You can use these functions to interact with the model object in a way that feels like working with a native React
 state object.
 
-If you for example have a Popup component with a form to edit the article inside the `Article.tsx` component,
-you can use the `lock` and `unlock` functions to prevent any unwanted updates from API while the form is open,
-bind `set` to Input fields and appropriately update the model state, and `commit` the changes when the form is
-saved or `reset` the changes when the form is closed.
+If you, for example, have a Popup component with a form to edit the article inside the `Article.tsx` component,
+you can:
+- use the `lock` and `unlock` functions to prevent any unwanted updates from API while the form is open.
+- bind `set` to Input fields and appropriately update the model state.
+- `commit` the changes when the form is saved or `reset` the changes when the form is closed.
