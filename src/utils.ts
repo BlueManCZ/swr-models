@@ -24,20 +24,17 @@ export const jsonFetcherFactory =
         cache: "force-cache" | "no-cache" = "no-cache",
         revalidate = 0,
     ) =>
-    async <T>(endpoint: string | null): Promise<T | null> => {
-        if (endpoint !== null) {
-            const url = `${protocol}://${host}:${port}/${endpoint}`;
-            const response = await fetch(url, {
-                cache,
-                // @ts-expect-error This is expected to raise a type error in non-next.js projects.
-                next: { revalidate },
-            });
-            if (!response.ok) {
-                throw new Error(`Failed to fetch ${url}`);
-            }
-            return response.json();
+    async <T>(endpoint: string): Promise<T> => {
+        const url = `${protocol}://${host}:${port}/${endpoint}`;
+        const response = await fetch(url, {
+            cache,
+            // @ts-expect-error This is expected to raise a type error in non-next.js projects.
+            next: { revalidate },
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to fetch ${url}`);
         }
-        return null;
+        return response.json();
     };
 
 /** Helper function converting object values to strings. */
