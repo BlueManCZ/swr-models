@@ -2,7 +2,7 @@ import type { MutatorCallback } from "swr";
 import type { MutatorOptions } from "swr/_internal";
 
 import { customMutate, customSWR } from "./SWRUtils";
-import type { SWRModel, SWRModelEndpointConfig, SWRModelEndpointConfigOverride } from "./types";
+import type { Fetcher, SWRModelEndpointConfig, SWRModelEndpointConfigOverride } from "./types";
 import { convertObjectValuesToString, jsonFetcher } from "./utils";
 
 export class SWRModelEndpoint<T> {
@@ -45,20 +45,21 @@ export class SWRModelEndpoint<T> {
         return c?.trailingSlash && !r.endsWith("/") ? `${r}/${p ? `?${p}` : ""}` : `${r}${p ? `?${p}` : ""}`;
     }
 
-    public fetch<T>(config?: SWRModelEndpointConfigOverride) {
-        if (this.config.serverFetcher) {
-            return this.config.serverFetcher<T>(this.endpoint(config));
+    public fetch<R = T>(fetcher: Fetcher, config?: SWRModelEndpointConfigOverride) {
+        const endpoint = this.endpoint(config);
+        if (endpoint === null) {
+            return Promise.resolve(null);
         }
-        throw new Error("No serverFetcher provided.");
+        return fetcher<R>(endpoint);
     }
 
-    public async fetchFallback<T>(config?: SWRModelEndpointConfigOverride) {
+    public async fetchFallback<R = T>(fetcher: Fetcher, config?: SWRModelEndpointConfigOverride) {
         const c = this._configMerge(config);
-        const fallbackPairs: Record<string, T> = {};
+        const fallbackPairs: { [url: string]: R } = {};
         for (const id of Array.isArray(c?.id) ? c.id : [c?.id]) {
             const key = this.endpoint({ ...c, id });
             if (key !== null) {
-                const value = await this.fetch<T>({ ...c, id });
+                const value = await this.fetch<R>(fetcher, { ...c, id });
                 if (value !== null) {
                     fallbackPairs[key] = value;
                 }
@@ -75,7 +76,7 @@ export class SWRModelEndpoint<T> {
         return customMutate(this.endpoint(config), data, opts);
     }
 
-    public async update<T extends SWRModel | SWRModel[]>(
+    public async update<T extends object | object[]>(
         data: T | Promise<T> | MutatorCallback<T>,
         onSuccess?: (response: Response) => void,
         config?: SWRModelEndpointConfigOverride,

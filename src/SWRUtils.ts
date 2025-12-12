@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import useSWR, { type Key, mutate, SWRConfig, type SWRConfiguration } from "swr";
 
 import type { SWRModelEndpoint } from "./SWRModelEndpoint";
-import type { SWRModel, SWRModelEndpointConfigOverride } from "./types";
+import type { SWRModelEndpointConfigOverride } from "./types";
 import { getJson } from "./utils";
 
 export function customSWR<T>(endpoint: Key, config?: SWRConfiguration) {
@@ -15,12 +15,9 @@ export function customSWR<T>(endpoint: Key, config?: SWRConfiguration) {
 export const customMutate = mutate;
 export const CustomSWRConfig = SWRConfig;
 
-export function useModel<T extends SWRModel | SWRModel[]>(
-    modelInstance: SWRModelEndpoint<T>,
-    config?: SWRModelEndpointConfigOverride,
-) {
+export function useModel<T>(modelInstance: SWRModelEndpoint<T>, config?: SWRModelEndpointConfigOverride) {
     const { data: original } = modelInstance.use(config);
-    const [model, set] = useState<T | undefined>(original);
+    const [model, set] = useState(original);
     const [refreshLock, setRefreshLock] = useState(false);
     const [commitLock, setCommitLock] = useState(true);
 
