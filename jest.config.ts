@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     preset: "ts-jest",
     transform: {
         "^.+\\.[tj]sx?$": "babel-jest",

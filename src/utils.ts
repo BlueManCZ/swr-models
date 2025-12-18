@@ -17,13 +17,7 @@ export const getJson = (key: string) => jsonFetcher(key).then((response) => resp
 
 /** Factory function for creating a JSON fetcher. This can be used to create a fetcher with a specific protocol, host and port. */
 export const jsonFetcherFactory =
-    (
-        protocol: string,
-        host: string,
-        port: string,
-        cache: "force-cache" | "no-cache" = "no-cache",
-        revalidate = 0,
-    ) =>
+    (protocol: string, host: string, port: string, cache?: RequestCache, revalidate?: number) =>
     async <T>(endpoint: string): Promise<T> => {
         const url = `${protocol}://${host}:${port}/${endpoint}`;
         const response = await fetch(url, {
