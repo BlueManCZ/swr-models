@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import useSWR, { mutate } from "swr";
+import useSWRInfinite from "swr/infinite";
 import type { SWRModelEndpoint } from "./SWRModelEndpoint";
 import type { SWRModelEndpointConfigOverride } from "./types";
+
+export const clientUseSWR = useSWR;
+export const clientMutate = mutate;
+export const clientUseSWRInfinite = useSWRInfinite;
 
 export function useModel<T>(modelInstance: SWRModelEndpoint<T>, config?: SWRModelEndpointConfigOverride<T>) {
     const { data: original } = modelInstance.use(config);

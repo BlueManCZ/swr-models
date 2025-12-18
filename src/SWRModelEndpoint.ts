@@ -1,6 +1,6 @@
-import useSWR, { type MutatorCallback, mutate } from "swr";
+import type { MutatorCallback } from "swr";
 import type { MutatorOptions } from "swr/_internal";
-import useSWRInfinite from "swr/infinite";
+import { clientMutate, clientUseSWR, clientUseSWRInfinite } from "./SWRUtils";
 import type { Fetcher, SWRModelEndpointConfig, SWRModelEndpointConfigOverride } from "./types";
 import { convertObjectValuesToString, getJson, jsonFetcher } from "./utils";
 
@@ -72,7 +72,7 @@ export class SWRModelEndpoint<T> {
         data?: R | Promise<R> | MutatorCallback<R>,
         opts?: boolean | MutatorOptions<Data, R>,
     ) {
-        return mutate(this.endpoint(config), data, opts);
+        return clientMutate(this.endpoint(config), data, opts);
     }
 
     public async update<R extends object | object[]>(
@@ -100,12 +100,12 @@ export class SWRModelEndpoint<T> {
     }
 
     public use<R = T>(config?: SWRModelEndpointConfigOverride<T>) {
-        return useSWR<R>(this.endpoint(config), getJson, this._configMerge(config).swrConfig);
+        return clientUseSWR<R>(this.endpoint(config), getJson, this._configMerge(config).swrConfig);
     }
 
     public useInfinite(config?: SWRModelEndpointConfigOverride<T>) {
         const c = this._configMerge(config);
-        return useSWRInfinite<T>((index, previousPageData) => {
+        return clientUseSWRInfinite<T>((index, previousPageData) => {
             if (previousPageData && !c.pagination?.hasMore(previousPageData)) return null;
             const params = {
                 ...c.params,
