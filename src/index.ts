@@ -1,3 +1,5 @@
+"use client";
+
 export { SWRModelEndpoint } from "./SWRModelEndpoint";
 export { useModel } from "./SWRUtils";
 export { SWRModelEndpointConfigOverride } from "./types";
