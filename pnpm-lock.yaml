@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@types/react':
-        specifier: ^19.2.7
-        version: 19.2.7
     devDependencies:
       '@babel/preset-env':
         specifier: ^7.28.5
@@ -24,6 +20,9 @@ importers:
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
+      '@types/react':
+        specifier: ^19.2.7
+        version: 19.2.7
       jest:
         specifier: ^30.2.0
         version: 30.2.0(@types/node@25.0.0)(ts-node@10.9.2(@types/node@25.0.0)(typescript@5.9.3))
@@ -31,11 +30,11 @@ importers:
         specifier: ^30.2.0
         version: 30.2.0
       react:
-        specifier: ^16.11 || ^17 || ^18 || ^19
-        version: 19.2.1
+        specifier: ^19.2.3
+        version: 19.2.3
       swr:
         specifier: ^2.3.7
-        version: 2.3.7(react@19.2.1)
+        version: 2.3.7(react@19.2.3)
       ts-jest:
         specifier: ^29.4.6
         version: 29.4.6(@babel/core@7.28.5)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.5))(jest-util@30.2.0)(jest@30.2.0(@types/node@25.0.0)(ts-node@10.9.2(@types/node@25.0.0)(typescript@5.9.3)))(typescript@5.9.3)
@@ -1819,8 +1818,8 @@ packages:
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  react@19.2.1:
-    resolution: {integrity: sha512-DGrYcCWK7tvYMnWh79yrPHt+vdx9tY+1gPZa7nJQtO/p8bLTDaHp4dzwEhQB7pZ4Xe3ok4XKuEPrVuc+wlpkmw==}
+  react@19.2.3:
+    resolution: {integrity: sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA==}
     engines: {node: '>=0.10.0'}
 
   regenerate-unicode-properties@10.2.2:
@@ -4358,7 +4357,7 @@ snapshots:
 
   react-is@18.3.1: {}
 
-  react@19.2.1: {}
+  react@19.2.3: {}
 
   regenerate-unicode-properties@10.2.2:
     dependencies:
@@ -4473,11 +4472,11 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  swr@2.3.7(react@19.2.1):
+  swr@2.3.7(react@19.2.3):
     dependencies:
       dequal: 2.0.3
-      react: 19.2.1
-      use-sync-external-store: 1.6.0(react@19.2.1)
+      react: 19.2.3
+      use-sync-external-store: 1.6.0(react@19.2.3)
 
   symbol-tree@3.2.4: {}
 
@@ -4606,9 +4605,9 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
-  use-sync-external-store@1.6.0(react@19.2.1):
+  use-sync-external-store@1.6.0(react@19.2.3):
     dependencies:
-      react: 19.2.1
+      react: 19.2.3
 
   v8-compile-cache-lib@3.0.1: {}
 

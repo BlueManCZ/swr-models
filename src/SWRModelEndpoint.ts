@@ -1,25 +1,24 @@
-import type { MutatorCallback } from "swr";
+import useSWR, { type MutatorCallback, mutate } from "swr";
 import type { MutatorOptions } from "swr/_internal";
-
-import { customMutate, customSWR } from "./SWRUtils";
+import useSWRInfinite from "swr/infinite";
 import type { Fetcher, SWRModelEndpointConfig, SWRModelEndpointConfigOverride } from "./types";
-import { convertObjectValuesToString, jsonFetcher } from "./utils";
+import { convertObjectValuesToString, getJson, jsonFetcher } from "./utils";
 
 export class SWRModelEndpoint<T> {
-    private readonly config: SWRModelEndpointConfig;
+    private readonly config: SWRModelEndpointConfig<T>;
 
-    constructor(config: SWRModelEndpointConfig) {
+    constructor(config: SWRModelEndpointConfig<T>) {
         this.config = config;
     }
 
-    private _configMerge(config?: SWRModelEndpointConfigOverride) {
+    private _configMerge(config?: SWRModelEndpointConfigOverride<T>) {
         return {
             ...this.config,
             ...config,
         };
     }
 
-    public endpoint(config?: SWRModelEndpointConfigOverride): string | null {
+    public endpoint(config?: SWRModelEndpointConfigOverride<T>): string | null {
         if (Array.isArray(config?.id)) {
             throw new Error("id can be array only in ssr fallback.");
         }
@@ -45,7 +44,7 @@ export class SWRModelEndpoint<T> {
         return c?.trailingSlash && !r.endsWith("/") ? `${r}/${p ? `?${p}` : ""}` : `${r}${p ? `?${p}` : ""}`;
     }
 
-    public fetch<R = T>(fetcher: Fetcher, config?: SWRModelEndpointConfigOverride) {
+    public fetch<R = T>(fetcher: Fetcher, config?: SWRModelEndpointConfigOverride<T>) {
         const endpoint = this.endpoint(config);
         if (endpoint === null) {
             return Promise.resolve(null);
@@ -53,7 +52,7 @@ export class SWRModelEndpoint<T> {
         return fetcher<R>(endpoint);
     }
 
-    public async fetchFallback<R = T>(fetcher: Fetcher, config?: SWRModelEndpointConfigOverride) {
+    public async fetchFallback<R = T>(fetcher: Fetcher, config?: SWRModelEndpointConfigOverride<T>) {
         const c = this._configMerge(config);
         const fallbackPairs: { [url: string]: R } = {};
         for (const id of Array.isArray(c?.id) ? c.id : [c?.id]) {
@@ -68,18 +67,18 @@ export class SWRModelEndpoint<T> {
         return fallbackPairs;
     }
 
-    public mutate<Data = unknown, T = Data>(
-        config?: SWRModelEndpointConfigOverride,
-        data?: T | Promise<T> | MutatorCallback<T>,
-        opts?: boolean | MutatorOptions<Data, T>,
+    public mutate<Data = unknown, R = Data>(
+        config?: SWRModelEndpointConfigOverride<T>,
+        data?: R | Promise<R> | MutatorCallback<R>,
+        opts?: boolean | MutatorOptions<Data, R>,
     ) {
-        return customMutate(this.endpoint(config), data, opts);
+        return mutate(this.endpoint(config), data, opts);
     }
 
-    public async update<T extends object | object[]>(
-        data: T | Promise<T> | MutatorCallback<T>,
+    public async update<R extends object | object[]>(
+        data: R | Promise<R> | MutatorCallback<R>,
         onSuccess?: (response: Response) => void,
-        config?: SWRModelEndpointConfigOverride,
+        config?: SWRModelEndpointConfigOverride<T>,
     ) {
         const c = this._configMerge(config);
         return this.mutate(c, data, {
@@ -100,7 +99,19 @@ export class SWRModelEndpoint<T> {
         });
     }
 
-    public use<R = T>(config?: SWRModelEndpointConfigOverride) {
-        return customSWR<R>(this.endpoint(config), this._configMerge(config).swrConfig);
+    public use<R = T>(config?: SWRModelEndpointConfigOverride<T>) {
+        return useSWR<R>(this.endpoint(config), getJson, this._configMerge(config).swrConfig);
+    }
+
+    public useInfinite(config?: SWRModelEndpointConfigOverride<T>) {
+        const c = this._configMerge(config);
+        return useSWRInfinite<T>((index, previousPageData) => {
+            if (previousPageData && !c.pagination?.hasMore(previousPageData)) return null;
+            const params = {
+                ...c.params,
+                ...(c.pagination ? c.pagination.getParams(index, previousPageData) : {}),
+            };
+            return this.endpoint({ ...c, params });
+        });
     }
 }
