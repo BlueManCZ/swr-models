@@ -2,7 +2,7 @@ import type { SWRConfiguration } from "swr";
 
 export type Fetcher = <T>(url: string) => Promise<T>;
 
-export type SWRModelEndpointConfig<T> = {
+export type SWRModelEndpointConfig = {
     key: string;
     id?: number | string | number[] | string[] | null;
     nonNullId?: boolean;
@@ -11,12 +11,12 @@ export type SWRModelEndpointConfig<T> = {
     trailingSlash?: boolean;
     swrConfig?: SWRConfiguration;
     pagination?: {
-        hasMore: (previousData: T) => boolean;
+        hasMore: (previousData: object) => boolean;
         getParams: (
             index: number,
-            previousData: T | null,
+            previousData: object | null,
         ) => Record<string, string | number | boolean | null>;
     };
 };
 
-export type SWRModelEndpointConfigOverride<T> = Omit<SWRModelEndpointConfig<T>, "key">;
+export type SWRModelEndpointConfigOverride = Omit<SWRModelEndpointConfig, "key">;

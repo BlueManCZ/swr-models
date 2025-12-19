@@ -10,7 +10,10 @@ export const clientUseSWR = useSWR;
 export const clientMutate = mutate;
 export const clientUseSWRInfinite = useSWRInfinite;
 
-export function useModel<T>(modelInstance: SWRModelEndpoint<T>, config?: SWRModelEndpointConfigOverride<T>) {
+export function useModel<T extends object>(
+    modelInstance: SWRModelEndpoint<T>,
+    config?: SWRModelEndpointConfigOverride,
+) {
     const { data: original } = modelInstance.use(config);
     const [model, set] = useState(original);
     const [refreshLock, setRefreshLock] = useState(false);

@@ -4,21 +4,21 @@ import { clientMutate, clientUseSWR, clientUseSWRInfinite } from "./SWRUtils";
 import type { Fetcher, SWRModelEndpointConfig, SWRModelEndpointConfigOverride } from "./types";
 import { convertObjectValuesToString, getJson, jsonFetcher } from "./utils";
 
-export class SWRModelEndpoint<T> {
-    private readonly config: SWRModelEndpointConfig<T>;
+export class SWRModelEndpoint<T extends object> {
+    private readonly config: SWRModelEndpointConfig;
 
-    constructor(config: SWRModelEndpointConfig<T>) {
+    constructor(config: SWRModelEndpointConfig) {
         this.config = config;
     }
 
-    private _configMerge(config?: SWRModelEndpointConfigOverride<T>) {
+    private _configMerge(config?: SWRModelEndpointConfigOverride) {
         return {
             ...this.config,
             ...config,
         };
     }
 
-    public endpoint(config?: SWRModelEndpointConfigOverride<T>): string | null {
+    public endpoint(config?: SWRModelEndpointConfigOverride): string | null {
         if (Array.isArray(config?.id)) {
             throw new Error("id can be array only in ssr fallback.");
         }
@@ -44,7 +44,7 @@ export class SWRModelEndpoint<T> {
         return c?.trailingSlash && !r.endsWith("/") ? `${r}/${p ? `?${p}` : ""}` : `${r}${p ? `?${p}` : ""}`;
     }
 
-    public fetch<R = T>(fetcher: Fetcher, config?: SWRModelEndpointConfigOverride<T>) {
+    public fetch<R = T>(fetcher: Fetcher, config?: SWRModelEndpointConfigOverride) {
         const endpoint = this.endpoint(config);
         if (endpoint === null) {
             return Promise.resolve(null);
@@ -52,7 +52,7 @@ export class SWRModelEndpoint<T> {
         return fetcher<R>(endpoint);
     }
 
-    public async fetchFallback<R = T>(fetcher: Fetcher, config?: SWRModelEndpointConfigOverride<T>) {
+    public async fetchFallback<R = T>(fetcher: Fetcher, config?: SWRModelEndpointConfigOverride) {
         const c = this._configMerge(config);
         const fallbackPairs: { [url: string]: R } = {};
         for (const id of Array.isArray(c?.id) ? c.id : [c?.id]) {
@@ -68,7 +68,7 @@ export class SWRModelEndpoint<T> {
     }
 
     public mutate<Data = unknown, R = Data>(
-        config?: SWRModelEndpointConfigOverride<T>,
+        config?: SWRModelEndpointConfigOverride,
         data?: R | Promise<R> | MutatorCallback<R>,
         opts?: boolean | MutatorOptions<Data, R>,
     ) {
@@ -78,7 +78,7 @@ export class SWRModelEndpoint<T> {
     public async update<R extends object | object[]>(
         data: R | Promise<R> | MutatorCallback<R>,
         onSuccess?: (response: Response) => void,
-        config?: SWRModelEndpointConfigOverride<T>,
+        config?: SWRModelEndpointConfigOverride,
     ) {
         const c = this._configMerge(config);
         return this.mutate(c, data, {
@@ -99,13 +99,13 @@ export class SWRModelEndpoint<T> {
         });
     }
 
-    public use<R = T>(config?: SWRModelEndpointConfigOverride<T>) {
+    public use<R = T>(config?: SWRModelEndpointConfigOverride) {
         return clientUseSWR<R>(this.endpoint(config), getJson, this._configMerge(config).swrConfig);
     }
 
-    public useInfinite(config?: SWRModelEndpointConfigOverride<T>) {
+    public useInfinite<R extends object = T>(config?: SWRModelEndpointConfigOverride) {
         const c = this._configMerge(config);
-        return clientUseSWRInfinite<T>((index, previousPageData) => {
+        return clientUseSWRInfinite<R>((index, previousPageData) => {
             if (previousPageData && !c.pagination?.hasMore(previousPageData)) return null;
             const params = {
                 ...c.params,
