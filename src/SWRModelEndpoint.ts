@@ -105,13 +105,17 @@ export class SWRModelEndpoint<T extends object> {
 
     public useInfinite<R extends object = T>(config?: SWRModelEndpointConfigOverride) {
         const c = this._configMerge(config);
-        return clientUseSWRInfinite<R>((index, previousPageData) => {
-            if (previousPageData && !c.pagination?.hasMore(previousPageData)) return null;
-            const params = {
-                ...c.params,
-                ...(c.pagination ? c.pagination.getParams(index, previousPageData) : {}),
-            };
-            return this.endpoint({ ...c, params });
-        });
+        return clientUseSWRInfinite<R>(
+            (index, previousPageData) => {
+                if (previousPageData && !c.pagination?.hasMore(previousPageData)) return null;
+                const params = {
+                    ...c.params,
+                    ...(c.pagination ? c.pagination.getParams(index, previousPageData) : {}),
+                };
+                return this.endpoint({ ...c, params });
+            },
+            getJson,
+            this._configMerge(config).swrConfig,
+        );
     }
 }

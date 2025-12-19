@@ -1,6 +1,6 @@
 {
   "name": "swr-models",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "SWR toolkit for abstracting API data models as React state objects.",
   "keywords": [
     "swr",
